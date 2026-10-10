@@ -1,0 +1,78 @@
+name: bau
+
+# Baut das MekoTools-Abbild von Wick Editor und legt es nach
+# ghcr.io/mekotools/wick-editor.
+#
+# Uebersetzt wird NICHT selbst: geholt wird der amtliche Bau des Projekts
+# (Zweig `gh-pages` im Repo Wicklets/wick-editor) auf einen festgenagelten
+# Commit. Der einzige Eingriff ist das Entfernen der Analyse-Zeile
+# (`plausible.io`) aus index.html.
+#
+# Der Push MUSS aus diesem oeffentlichen Repo heraus passieren: nur so wird das
+# Paket mit einem oeffentlichen Repo verknuepft und ist ohne Anmeldung ziehbar.
+
+on:
+  workflow_dispatch:
+    inputs:
+      quelle_commit:
+        description: "Vollstaendige Kennung des Commits im Zweig gh-pages"
+        required: true
+        default: "b24d0de01006e3ce14ebfd7c3a6155b26d3126c7"
+      tag:
+        description: "Versionsetikett des Abbilds"
+        required: true
+        default: "1.19.3"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  bau:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Eigenes Repo holen
+        uses: actions/checkout@v4
+
+      - name: Amtlichen Bau holen (festgenagelter Commit)
+        run: |
+          set -eu
+          git clone --filter=blob:none --no-checkout https://github.com/Wicklets/wick-editor.git quelle
+          cd quelle
+          git checkout --detach "${{ inputs.quelle_commit }}"
+          echo "Kopf des Quellzweigs:"
+          git log -1 --format='  %H %ci %s'
+          rm -rf .git
+          cd ..
+          mv quelle seite
+
+      - name: Fremdaufruf entfernen und belegen
+        run: |
+          set -eu
+          echo "index.html vorher : $(sha256sum seite/index.html | cut -d' ' -f1)"
+          echo "Fremdaufrufe vorher:"
+          grep -n "https\?://" seite/index.html || true
+          sed -i '/plausible\.io/d' seite/index.html
+          echo "index.html nachher: $(sha256sum seite/index.html | cut -d' ' -f1)"
+          if grep -q "plausible" seite/index.html; then
+            echo "::error::Die Analyse-Zeile steckt noch in index.html"; exit 1
+          fi
+          echo "Fremdaufrufe nachher (leer = gut):"
+          grep -n "https\?://" seite/index.html || true
+          echo "Dateien im Bau: $(find seite -type f | wc -l)"
+          echo "Groesse des Baus: $(du -sh seite | cut -f1)"
+
+      - name: Bauen
+        run: |
+          set -eu
+          docker build -t "ghcr.io/mekotools/wick-editor:${{ inputs.tag }}" .
+
+      - name: Anmelden und ablegen
+        run: |
+          set -eu
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker tag "ghcr.io/mekotools/wick-editor:${{ inputs.tag }}" ghcr.io/mekotools/wick-editor:latest
+          docker push "ghcr.io/mekotools/wick-editor:${{ inputs.tag }}"
+          docker push ghcr.io/mekotools/wick-editor:latest
+          echo "Verdauungswert des abgelegten Abbilds:"
+          docker inspect --format='  {{index .RepoDigests 0}}' ghcr.io/mekotools/wick-editor:latest
