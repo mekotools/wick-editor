@@ -1,0 +1,14 @@
+commit rc=0 
+push rc=0 
+Anstoss: 204
+   0 in_progress
+   1 in_progress
+Lauf 38051432300 success
+   Set up job                                       success
+   Eigenes Repo holen                               success
+   Amtlichen Bau holen (festgenagelter Commit)      success
+   Fremdaufruf entfernen und belegen                success
+   Bauen                                            success
+   Anmelden und ablegen                             success
+   Post Eigenes Repo holen                          success
+   Complete job                                     success

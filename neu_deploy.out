@@ -1,0 +1,15 @@
+ Container mekotools-wick  Recreate
+ Container mekotools-wick  Recreated
+ Container mekotools-wick  Starting
+ Container mekotools-wick  Started
+mekotools-wick Up 12 seconds (healthy) ghcr.io/mekotools/wick-editor
+=== Startseite im Behaelter ===
+6541 /usr/share/nginx/html/index.html
+0
+=== von aussen ===
+https://wick.mekotools.de/               http=200 bytes=6541
+https://wick.mekotools.de/healthz        http=200 bytes=3
+=== Startseite von aussen ===
+6541
+<title>Wick Editor</title>
+plausible im ausgelieferten HTML: 0

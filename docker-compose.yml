@@ -17,8 +17,9 @@
 # heruntergeladen.
 services:
   web:
-    # Verdauungswert der Ziehung vom 10.10.2026 (Lauf 38055655124, erfolgreich).
-    image: ghcr.io/mekotools/wick-editor@sha256:1f0a9b289304fe0be147a5644eede36551f62c074769d0df6250f69467b58bd1
+    # Verdauungswert der Ziehung vom 10.10.2026 (Lauf 38051432300, erfolgreich).
+    # Startseite im Abbild: 6541 Bytes, sha256 081a39f8a839bcb6eff802d44085aa4523438c3f2843705e8651de2605c3d261
+    image: ghcr.io/mekotools/wick-editor@sha256:7d5149fd08a6ceec15734c2094362f7493a71b715a969522de8fdd451570e096
     container_name: mekotools-wick
     restart: unless-stopped
     networks: [coolify]

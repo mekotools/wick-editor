@@ -46,22 +46,19 @@ jobs:
           cd ..
           mv quelle seite
 
-      - name: Fremdaufruf entfernen und belegen
+      - name: Fremdaufrufe entfernen und belegen
         run: |
           set -eu
           VORHER_BYTES=$(wc -c < seite/index.html)
           echo "index.html vorher : $(sha256sum seite/index.html | cut -d' ' -f1) (${VORHER_BYTES} Bytes)"
-          echo "Fremdaufrufe vorher:"
-          grep -o 'src="https\?://[^"]*"' seite/index.html || true
+
+          echo "--- 1) Analyse-Aufruf in der Startseite (plausible.io) ---"
           # Der Bau ist EINE einzige Zeile (verkleinertes HTML). `sed /muster/d`
           # loescht deshalb die ganze Datei — hier wird nur das Script-Element
           # selbst entfernt, der Rest der Zeile bleibt stehen.
           sed -i -E 's#<script[^>]*plausible[^>]*></script>##g' seite/index.html
           NACHHER_BYTES=$(wc -c < seite/index.html)
           echo "index.html nachher: $(sha256sum seite/index.html | cut -d' ' -f1) (${NACHHER_BYTES} Bytes)"
-          if grep -q "plausible" seite/index.html; then
-            echo "::error::Die Analyse-Zeile steckt noch in index.html"; exit 1
-          fi
           if [ "$NACHHER_BYTES" -lt 3000 ]; then
             echo "::error::index.html ist zerstoert (${NACHHER_BYTES} Bytes)"; exit 1
           fi
@@ -71,8 +68,30 @@ jobs:
           if ! grep -q "<title>Wick Editor</title>" seite/index.html; then
             echo "::error::index.html ist nicht mehr die Startseite"; exit 1
           fi
-          echo "Fremdaufrufe im HTML nachher (leer = gut):"
-          grep -o 'src="https\?://[^"]*"\|href="https\?://[^"]*"' seite/index.html || true
+
+          echo "--- 2) Google-Schriften in den Stilvorlagen ---"
+          # Die Schriftenliste des Textwerkzeugs holte ueber 140 Schriftarten von
+          # fonts.googleapis.com — bei jedem Aufruf. Entfernt; es gelten die
+          # Schriften des Geraets (Nunito Sans und PT Mono liegen oertlich bei).
+          ANZ_VOR=$(grep -o 'fonts\.googleapis\.com' seite/static/css/main.*.chunk.css | wc -l)
+          sed -i -E 's#@import url\(https://fonts\.googleapis\.com[^)]*\);[[:space:]]*##g' seite/static/css/main.*.chunk.css
+          sed -i -E 's#https://fonts\.googleapis\.com/css\?family=[A-Za-z0-9+&;=]*##g' seite/project-converter/index.html
+          echo "Schrift-Abrufe vorher: $ANZ_VOR, nachher: $(grep -c 'fonts\.googleapis\.com' seite/static/css/main.*.chunk.css || true)"
+
+          echo "--- 3) Zaehl-Aufrufe im Programmbau (Google Analytics) ---"
+          ANZ_JS=$(grep -o 'www\.google-analytics\.com' seite/static/js/*.chunk.js | wc -l)
+          sed -i -E 's#https://www\.google-analytics\.com/analytics(_debug)?\.js#about:blank#g' seite/static/js/*.chunk.js
+          sed -i -E 's#https://www\.googletagmanager\.com/[A-Za-z0-9/._?=&-]*#about:blank#g' seite/static/js/*.chunk.js || true
+          echo "Zaehl-Adressen vorher: $ANZ_JS, nachher: $(grep -o 'www\.google-analytics\.com' seite/static/js/*.chunk.js | wc -l)"
+
+          echo "--- 4) Quellkarten entfernen (nur zum Nachsehen, enthalten die alten Adressen) ---"
+          find seite -name '*.map' -print -delete
+
+          echo "--- Gegenprobe: kein Werkzeug ruft noch einen fremden Wirt ab ---"
+          if grep -rIl -E 'fonts\.googleapis|google-analytics|googletagmanager|plausible\.io' seite; then
+            echo "::error::Es steht noch ein Fremdaufruf im Bau"; exit 1
+          fi
+          echo "sauber"
           echo "Dateien im Bau: $(find seite -type f | wc -l)"
           echo "Groesse des Baus: $(du -sh seite | cut -f1)"
 
