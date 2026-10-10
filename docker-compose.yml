@@ -1,0 +1,41 @@
+# MekoTools — Wick Editor (Animationen und kleine Spiele im Browser)
+# Ablage : /poolio/docker/mekotools-werkzeuge/wick/docker-compose.yml
+# Start  : cd /poolio/docker/mekotools-werkzeuge/wick && docker compose up -d
+# Adresse: https://wick.mekotools.de  (Wildcard-DNS + Wildcard-Zertifikat)
+#
+# Herkunft: der amtliche Bau des Projekts (Zweig gh-pages von
+# Wicklets/wick-editor, GPL-3.0), festgenagelt auf den Commit
+# b24d0de01006e3ce14ebfd7c3a6155b26d3126c7 und mit nginx ausgeliefert.
+# Gebaut wird in GitHub Actions (Repo mekotools/wick-editor, Ablauf bau.yml),
+# das Ergebnis liegt als oeffentliches Paket in der Registry.
+# Einziger Eingriff gegenueber dem amtlichen Bau: der Analyse-Aufruf
+# (plausible.io) ist aus index.html entfernt — es gibt keinen Fremdaufruf.
+#
+# Zugangsmodell: OFFEN wie cyberchef, piskel und turbowarp. Das Werkzeug laeuft
+# vollstaendig im Browser (kein Anwendungsteil auf einem Server, keine
+# Datenbank, kein Konto); Projekte liegen im Browser oder werden als Datei
+# heruntergeladen.
+services:
+  web:
+    # Verdauungswert der Ziehung vom 10.10.2026 (Lauf 38055655124, erfolgreich).
+    image: ghcr.io/mekotools/wick-editor@sha256:1f0a9b289304fe0be147a5644eede36551f62c074769d0df6250f69467b58bd1
+    container_name: mekotools-wick
+    restart: unless-stopped
+    networks: [coolify]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz | grep -q ok"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+      - traefik.http.routers.mekotools-wick.rule=Host(`wick.mekotools.de`)
+      - traefik.http.routers.mekotools-wick.entrypoints=http
+      - traefik.http.routers.mekotools-wick.service=mekotools-wick
+      - traefik.http.services.mekotools-wick.loadbalancer.server.port=80
+
+networks:
+  coolify:
+    external: true

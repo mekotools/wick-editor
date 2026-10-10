@@ -20,6 +20,10 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY seite/ /usr/share/nginx/html/
 
 # Der Bau muss wirklich angekommen sein, sonst soll das Abbild nicht entstehen.
-RUN test -f /usr/share/nginx/html/index.html \
+# Die Groessenschranke faengt den Fehler ab, bei dem die Startseite versehentlich
+# geleert wird: der Bau ist EINE Zeile, ein `sed /muster/d` loescht sie ganz.
+RUN test -s /usr/share/nginx/html/index.html \
+ && test "$(wc -c < /usr/share/nginx/html/index.html)" -gt 3000 \
+ && grep -q "<title>Wick Editor</title>" /usr/share/nginx/html/index.html \
  && test -d /usr/share/nginx/html/static \
  && ! grep -q "plausible" /usr/share/nginx/html/index.html

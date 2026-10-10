@@ -1,0 +1,6 @@
+Verdauungswert (aus dem Manifest gerechnet): sha256:1f0a9b289304fe0be147a5644eede36551f62c074769d0df6250f69467b58bd1
+Inhaltstyp: application/vnd.docker.distribution.manifest.v2+json
+Schichten: 11 | Groesse: 66.0 MB
+config.digest: sha256:a9d26e3a7fc894b7d43b48e879013a19fc58b0a0644b9fffbddca744c513c3cc
+config.size: 12693
+Abruf ueber den Verdauungswert: ok

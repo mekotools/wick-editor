@@ -1,0 +1,16 @@
+=== Kopfzeilen der Startseite ===
+HTTP/2 200 
+accept-ranges: bytes
+cache-control: no-cache
+content-type: text/html
+date: Sat, 10 Oct 2026 12:16:53 GMT
+etag: "6aca2c12-0"
+last-modified: Sat, 10 Oct 2026 12:14:10 GMT
+server: nginx/1.27.5
+content-length: 0
+
+=== Groesse ===
+0 /tmp/wick/index_live.html
+=== erste 20 Zeilen ===
+=== Fremdaufrufe ===
+=== Vergleich mit dem Bau im Abbild ===

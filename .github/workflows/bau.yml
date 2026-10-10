@@ -49,16 +49,30 @@ jobs:
       - name: Fremdaufruf entfernen und belegen
         run: |
           set -eu
-          echo "index.html vorher : $(sha256sum seite/index.html | cut -d' ' -f1)"
+          VORHER_BYTES=$(wc -c < seite/index.html)
+          echo "index.html vorher : $(sha256sum seite/index.html | cut -d' ' -f1) (${VORHER_BYTES} Bytes)"
           echo "Fremdaufrufe vorher:"
-          grep -n "https\?://" seite/index.html || true
-          sed -i '/plausible\.io/d' seite/index.html
-          echo "index.html nachher: $(sha256sum seite/index.html | cut -d' ' -f1)"
+          grep -o 'src="https\?://[^"]*"' seite/index.html || true
+          # Der Bau ist EINE einzige Zeile (verkleinertes HTML). `sed /muster/d`
+          # loescht deshalb die ganze Datei — hier wird nur das Script-Element
+          # selbst entfernt, der Rest der Zeile bleibt stehen.
+          sed -i -E 's#<script[^>]*plausible[^>]*></script>##g' seite/index.html
+          NACHHER_BYTES=$(wc -c < seite/index.html)
+          echo "index.html nachher: $(sha256sum seite/index.html | cut -d' ' -f1) (${NACHHER_BYTES} Bytes)"
           if grep -q "plausible" seite/index.html; then
             echo "::error::Die Analyse-Zeile steckt noch in index.html"; exit 1
           fi
-          echo "Fremdaufrufe nachher (leer = gut):"
-          grep -n "https\?://" seite/index.html || true
+          if [ "$NACHHER_BYTES" -lt 3000 ]; then
+            echo "::error::index.html ist zerstoert (${NACHHER_BYTES} Bytes)"; exit 1
+          fi
+          if [ "$((VORHER_BYTES - NACHHER_BYTES))" -gt 300 ]; then
+            echo "::error::Es wurden $((VORHER_BYTES - NACHHER_BYTES)) Bytes entfernt — zu viel"; exit 1
+          fi
+          if ! grep -q "<title>Wick Editor</title>" seite/index.html; then
+            echo "::error::index.html ist nicht mehr die Startseite"; exit 1
+          fi
+          echo "Fremdaufrufe im HTML nachher (leer = gut):"
+          grep -o 'src="https\?://[^"]*"\|href="https\?://[^"]*"' seite/index.html || true
           echo "Dateien im Bau: $(find seite -type f | wc -l)"
           echo "Groesse des Baus: $(du -sh seite | cut -f1)"
 

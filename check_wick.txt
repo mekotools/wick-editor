@@ -1,0 +1,14 @@
+=== von aussen ===
+https://wick.mekotools.de/                     http=200 typ=text/html bytes=0
+https://wick.mekotools.de/healthz              http=200 typ=text/plain bytes=3
+https://wick.mekotools.de/manifest.json        http=200 typ=application/json bytes=296
+=== Fremdaufrufe im ausgelieferten HTML ===
+(leer = kein Fremdaufruf)
+=== plausible noch drin? ===
+0
+0
+=== Bausteine erreichbar ===
+static/js/main.e3c16a32.chunk.js               http=200 bytes=788100
+static/css/main.30f3b97f.chunk.css             http=200 bytes=87903
+corelibs/wick-engine/wickengine.js             http=200 bytes=2182195
+service-worker.js                              http=200 bytes=1041

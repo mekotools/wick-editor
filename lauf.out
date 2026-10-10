@@ -1,0 +1,14 @@
+Anstoss: 204 
+  Lauf 0: in_progress 
+  Lauf 1: in_progress 
+  Lauf 2: completed success
+Ergebnis: success
+Auftrag: bau success
+   Set up job                                     success
+   Eigenes Repo holen                             success
+   Amtlichen Bau holen (festgenagelter Commit)    success
+   Fremdaufruf entfernen und belegen              success
+   Bauen                                          success
+   Anmelden und ablegen                           success
+   Post Eigenes Repo holen                        success
+   Complete job                                   success

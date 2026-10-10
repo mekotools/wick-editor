@@ -1,0 +1,15 @@
+total 10
+drwxr-xr-x  2 root  root     3 Oct 10 14:16 .
+drwxr-xr-x 14 10000 10000   14 Oct 10 14:16 ..
+-rw-r--r--  1 root  root  1891 Oct 10 14:16 docker-compose.yml
+ 4f4fb700ef54 Pull complete 
+ web Pulled 
+ Container mekotools-wick  Creating
+ Container mekotools-wick  Created
+ Container mekotools-wick  Starting
+ Container mekotools-wick  Started
+=== Zustand ===
+mekotools-wick Up 12 seconds (healthy)
+=== innen ===
+ok
+exit=0

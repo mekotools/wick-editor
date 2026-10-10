@@ -1,2 +1,4 @@
 vorhanden? 404
 anlegen: 201 mekotools/wick-editor
+push rc=0 
+ls-remote: cbb0e6fd9ae42dcdd7cc9f5674d0da0e4ab6a582	refs/heads/main
